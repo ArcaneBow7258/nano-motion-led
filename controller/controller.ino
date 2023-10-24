@@ -1,14 +1,17 @@
+#pragma region imports
 // Arduino Wire library is required if I2Cdev I2CDEV_ARDUINO_WIRE implementation
 // is used in I2Cdev.h
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 #include "Wire.h"
 #endif
-#include <Adafruit_NeoPixel.h>
+#include <FastLED.h>
 // I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
 // for both classes must be in the include path of your project
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 //#include "MPU6050.h" // not necessary if using MotionApps include file
+#pragma endregion 
+#pragma region MPU
 /*
 Code stripped from MPU6050/Examples/MPU6050_DMP6
 */
@@ -28,7 +31,7 @@ uint16_t fifoCount;      // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64];  // FIFO storage buffer
 
 // orientation/motion vars
-Quaternion q;         // [w, x, y, z]         quaternion container
+Quaternion quant;         // [w, x, y, z]         quaternion container
 VectorInt16 aa;       // [x, y, z]            accel sensor measurements
 VectorInt16 aaReal;   // [x, y, z]            gravity-free accel sensor measurements
 VectorInt16 aaWorld;  // [x, y, z]            world-frame accel sensor measurements
@@ -44,17 +47,17 @@ void dmpDataReady() {
   mpuInterrupt = true;
 }
 uint32_t color;
-
+#pragma endregion MPU
 /******
 Constants
 ******/
 #define degree  180 / M_PI
-#define PIN 6
-#define NUMPIXELS 1
+#define DATA_PIN 6
+#define NUM_LEDS 1
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
 //#define LED_PIN 13 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
 /********
 Global Variables
 */
 bool blinkState = false;
-Adafruit_NeoPixel strip(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ800);
+CRGB leds[NUM_LEDS];

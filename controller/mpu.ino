@@ -1,9 +1,9 @@
 // YPR is in radians
 // Also its goes from -180 to 180
 void update_ypr(bool verbose = false){
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
-  mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+  mpu.dmpGetQuaternion(&quant, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &quant);
+  mpu.dmpGetYawPitchRoll(ypr, &quant, &gravity);
   if(verbose){
     Serial.print("ypr\t");
     Serial.print(ypr[0] * degree);
@@ -13,13 +13,14 @@ void update_ypr(bool verbose = false){
     Serial.println(ypr[2] * degree);
   }
 }
+// Accerleation relative to you,  i.e. left is always left.
 void update_accel(bool verbose = false){
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetQuaternion(&quant, fifoBuffer);
   mpu.dmpGetAccel(&aa, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetGravity(&gravity, &quant);
   mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-  Serial.print("areal\t");
-  if(verbose){}
+  if(verbose){
+    Serial.print("areal\t");
     Serial.print(aaReal.x);
     Serial.print("\t");
     Serial.print(aaReal.y);
@@ -27,12 +28,14 @@ void update_accel(bool verbose = false){
     Serial.println(aaReal.z);
   }
 }
+// Accerlation relative to the world, i.e. your left can be forward if it turns, but you'd know its left.
+// X axis is always x-Axis, not left and right only.
 void update_worldAccel(bool verbose = false){
-  mpu.dmpGetQuaternion(&q, fifoBuffer);
+  mpu.dmpGetQuaternion(&quant, fifoBuffer);
   mpu.dmpGetAccel(&aa, fifoBuffer);
-  mpu.dmpGetGravity(&gravity, &q);
+  mpu.dmpGetGravity(&gravity, &quant);
   mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-  mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+  mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &quant);
   if(verbose){
     Serial.print("aworld\t");
     Serial.print(aaWorld.x);
@@ -40,6 +43,28 @@ void update_worldAccel(bool verbose = false){
     Serial.print(aaWorld.y);
     Serial.print("\t");
     Serial.println(aaWorld.z);
+  }
+}
+// everyhting i care about atleast
+void update_all(bool verbose = false){
+  mpu.dmpGetQuaternion(&quant, fifoBuffer);
+  mpu.dmpGetGravity(&gravity, &quant);
+  mpu.dmpGetYawPitchRoll(ypr, &quant, &gravity);
+  mpu.dmpGetAccel(&aa, fifoBuffer);
+  mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+  if(verbose){
+    Serial.print("ypr\t");
+    Serial.print(ypr[0] * degree);
+    Serial.print("\t");
+    Serial.print(ypr[1] * degree);
+    Serial.print("\t");
+    Serial.println(ypr[2] * degree);
+    Serial.print("areal\t");
+    Serial.print(aaReal.x);
+    Serial.print("\t");
+    Serial.print(aaReal.y);
+    Serial.print("\t");
+    Serial.println(aaReal.z);
   }
 }
 void init_mpu(){
